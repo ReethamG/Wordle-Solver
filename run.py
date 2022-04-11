@@ -1,10 +1,8 @@
 import variables
 import functions
+import time
 
-def run():
+def run(): #All the functions together in a function
     variables.driver.get('https://www.nytimes.com/games/wordle/index.html')
-
     functions.initalSteps()
-
-
-    variables.action.perform()
+    time.sleep(4)
