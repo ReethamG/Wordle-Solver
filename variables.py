@@ -1,3 +1,4 @@
+from configparser import DuplicateSectionError
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 import functions
@@ -10,3 +11,4 @@ wordsList = functions.getAll5LetterWords()
 letterAndIndexForPresent = []
 letterAndIndexForCorrect = []
 absentLetters = []
+

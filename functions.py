@@ -10,53 +10,80 @@ def initalSteps():
     variables.action.send_keys('roate')
     variables.action.send_keys(Keys.RETURN) 
     variables.action.perform()
-    time.sleep(5)
+    time.sleep(4)
 
 def typeInWord(word):
     variables.action.send_keys(f'{word}')
     variables.action.send_keys(Keys.RETURN)
     variables.action.perform()
-    time.sleep(5)
+    time.sleep(4)
+    
+def indexes(my_list, desired_element):
+    return [index for index, element in enumerate(my_list) if element == desired_element]
 
-def tileStateWithLetter(word, letter):
-    root1 = variables.driver.find_element(By.CSS_SELECTOR, 'game-app')
-    shadow_root1 = root1.shadow_root
-    root2 = shadow_root1.find_element(By.CSS_SELECTOR, f"game-row[letters={word}]")
-    shadow_root2 = root2.shadow_root
-    root3 = shadow_root2.find_element(By.CSS_SELECTOR, f"game-tile[letter={letter}]")
-    shadow_root3 = root3.shadow_root
-    tile = shadow_root3.find_element(By.CSS_SELECTOR, ".tile")
-
-    return [letter, tile.get_attribute("data-state")]
-
-def tileState(word, letter):
-    root1 = variables.driver.find_element(By.CSS_SELECTOR, 'game-app')
-    shadow_root1 = root1.shadow_root
-    root2 = shadow_root1.find_element(By.CSS_SELECTOR, f"game-row[letters={word}]")
-    shadow_root2 = root2.shadow_root
-    root3 = shadow_root2.find_element(By.CSS_SELECTOR, f"game-tile[letter={letter}]")
-    shadow_root3 = root3.shadow_root
-    tile = shadow_root3.find_element(By.CSS_SELECTOR, ".tile")
-
-    return tile.get_attribute("data-state")
-
-def tileRowStatesWithIndex(word):
-    return [
-        [tileStateWithLetter(word, word[0]), 0], 
-        [tileStateWithLetter(word, word[1]), 1], 
-        [tileStateWithLetter(word, word[2]), 2], 
-        [tileStateWithLetter(word, word[3]), 3], 
-        [tileStateWithLetter(word, word[4]), 4]
-        ]
 
 def tileRowStates(word):
-    return [
-        tileState(word, word[0]),
-        tileState(word, word[1]),
-        tileState(word, word[2]),
-        tileState(word, word[3]),
-        tileState(word, word[4])
-        ]
+    i = 0
+    tileRowStates = []
+
+    for letter in word:
+
+        if(word.count(letter) > 1):
+            root1 = variables.driver.find_element(By.CSS_SELECTOR, 'game-app')
+            shadow_root1 = root1.shadow_root
+            root2 = shadow_root1.find_element(By.CSS_SELECTOR, f"game-row[letters={word}]")
+            shadow_root2 = root2.shadow_root
+            root3 = shadow_root2.find_element(By.CSS_SELECTOR, f"div:nth-child(2) > game-tile:nth-child({(indexes(word, letter)[i]) + 1})")
+            shadow_root3 = root3.shadow_root
+            tile = shadow_root3.find_element(By.CSS_SELECTOR, ".tile")
+            i = i + 1
+
+            tileRowStates.append(tile.get_attribute("data-state"))
+
+        else:
+            root1 = variables.driver.find_element(By.CSS_SELECTOR, 'game-app')
+            shadow_root1 = root1.shadow_root
+            root2 = shadow_root1.find_element(By.CSS_SELECTOR, f"game-row[letters={word}]")
+            shadow_root2 = root2.shadow_root
+            root3 = shadow_root2.find_element(By.CSS_SELECTOR, f"game-tile[letter={letter}]")
+            shadow_root3 = root3.shadow_root
+            tile = shadow_root3.find_element(By.CSS_SELECTOR, ".tile")
+
+            tileRowStates.append(tile.get_attribute("data-state"))
+
+    return tileRowStates
+
+def tileRowStatesWithIndex(word):
+    i = 0
+    tileRowStatesWithIndex = []
+
+    for letter in word:
+
+        if(word.count(letter) > 1):
+            root1 = variables.driver.find_element(By.CSS_SELECTOR, 'game-app')
+            shadow_root1 = root1.shadow_root
+            root2 = shadow_root1.find_element(By.CSS_SELECTOR, f"game-row[letters={word}]")
+            shadow_root2 = root2.shadow_root
+            root3 = shadow_root2.find_element(By.CSS_SELECTOR, f"div:nth-child(2) > game-tile:nth-child({(indexes(word, letter)[i]) + 1})")
+            shadow_root3 = root3.shadow_root
+            tile = shadow_root3.find_element(By.CSS_SELECTOR, ".tile")
+            
+
+            tileRowStatesWithIndex.append([[letter, tile.get_attribute("data-state")], indexes(word, letter)[i]])
+            i = i + 1
+
+        else:
+            root1 = variables.driver.find_element(By.CSS_SELECTOR, 'game-app')
+            shadow_root1 = root1.shadow_root
+            root2 = shadow_root1.find_element(By.CSS_SELECTOR, f"game-row[letters={word}]")
+            shadow_root2 = root2.shadow_root
+            root3 = shadow_root2.find_element(By.CSS_SELECTOR, f"game-tile[letter={letter}]")
+            shadow_root3 = root3.shadow_root
+            tile = shadow_root3.find_element(By.CSS_SELECTOR, ".tile")
+
+            tileRowStatesWithIndex.append([[letter, tile.get_attribute("data-state")], word.find(letter)])
+
+    return tileRowStatesWithIndex
 
 def getAll5LetterWords(): 
     my_file = open("wordleWords.txt", "r")
@@ -103,13 +130,12 @@ def logic(rowStatesWithIndex):
                 else:
                     variables.wordsList.remove(word)
         
-        for element in variables.letterAndIndexForCorrect:
+        for element in variables.letterAndIndexForCorrect: 
             if(element[0] in word):
-                if word not in variables.wordsList:
+                if(word not in variables.wordsList):
                     continue
-                else:
-                    if(word.find(element[0]) != element[1]): 
-                        variables.wordsList.remove(word)
+                elif(word.find(element[0]) != element[1]):
+                    variables.wordsList.remove(word)
             else:
                 if(word not in variables.wordsList):
                     continue
@@ -123,10 +149,10 @@ def wordleBot():
     nextWord = random.choice(variables.wordsList)
     typeInWord(nextWord)
 
-    while(not(tileRowStates(nextWord)== ["correct", "correct", "correct", "correct", "correct"])):
+    while(not(tileRowStates(nextWord) == ["correct", "correct", "correct", "correct", "correct"])):
 
         logic(tileRowStatesWithIndex(nextWord))
-        nextWord = random.choice(variables.wordsList) 
+        nextWord = random.choice(variables.wordsList)
         typeInWord(nextWord)
 
     print("Done")
