@@ -1,0 +1,9 @@
+1) Understands how web automation works
+2) Worked with python selenium library
+3) Got to learn more about the inspect element in html 
+4) Got to work with open shadow roots, and how to get past them.
+5) Got better at working with websites.
+6) More python practice, lists, for loops, indexes, random, strings, etc.
+7) Reading from a file.
+
+Overall, I enjoyed making this project, now I don't need to do the daily wordle anymore. ∑
