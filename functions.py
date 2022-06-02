@@ -5,7 +5,7 @@ import functions
 import time
 import random
 
-def initalSteps(): 
+def initalSteps():  #Add a removed word list
     variables.action.click()
     variables.action.send_keys('roate')
     variables.action.send_keys(Keys.RETURN) 
