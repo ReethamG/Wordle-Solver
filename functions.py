@@ -5,86 +5,75 @@ import functions
 import time
 import random
 
-def initalSteps():  #Add a removed word list
+
+def initalSteps():  # Add a removed word list
     variables.action.click()
     variables.action.send_keys('roate')
-    variables.action.send_keys(Keys.RETURN) 
+    variables.action.send_keys(Keys.RETURN)
     variables.action.perform()
     time.sleep(5)
+
 
 def typeInWord(word):
     variables.action.send_keys(f'{word}')
     variables.action.send_keys(Keys.RETURN)
     variables.action.perform()
     time.sleep(5)
-    
+
+
 def indexes(my_list, desired_element):
     return [index for index, element in enumerate(my_list) if element == desired_element]
 
-def tileRowStates(word):
+
+def tileRowStates(word, row):
     i = 0
     tileRowStates = []
 
     for letter in word:
 
         if(word.count(letter) > 1):
-            root1 = variables.driver.find_element(By.CSS_SELECTOR, 'game-app')
-            shadow_root1 = root1.shadow_root
-            root2 = shadow_root1.find_element(By.CSS_SELECTOR, f"game-row[letters={word}]")
-            shadow_root2 = root2.shadow_root
-            root3 = shadow_root2.find_element(By.CSS_SELECTOR, f" div:nth-child(2) > game-tile:nth-child({(indexes(word, letter)[i]) + 1})")
-            shadow_root3 = root3.shadow_root
-            tile = shadow_root3.find_element(By.CSS_SELECTOR, ".tile")
+            tile = variables.driver.find_element_by_xpath(
+                f'//*[@id="wordle-app-game"]/div[1]/div/div[{row}]/div[{(indexes(word, letter)[i])+1}]/div')
             tileRowStates.append(tile.get_attribute("data-state"))
             i = i + 1
         else:
-            root1 = variables.driver.find_element(By.CSS_SELECTOR, 'game-app')
-            shadow_root1 = root1.shadow_root
-            root2 = shadow_root1.find_element(By.CSS_SELECTOR, f"game-row[letters={word}]")
-            shadow_root2 = root2.shadow_root
-            root3 = shadow_root2.find_element(By.CSS_SELECTOR, f"game-tile[letter={letter}]")
-            shadow_root3 = root3.shadow_root
-            tile = shadow_root3.find_element(By.CSS_SELECTOR, ".tile")
+            tile = variables.driver.find_element_by_xpath(
+                f'//*[@id="wordle-app-game"]/div[1]/div/div[{row}]/div[{(indexes(word, letter)[0])+1}]/div')
             tileRowStates.append(tile.get_attribute("data-state"))
 
     return tileRowStates
 
-def tileRowStatesWithIndex(word):
+
+def tileRowStatesWithIndex(word, row):
     i = 0
     tileRowStatesWithIndex = []
 
     for letter in word:
 
-        if(word.count(letter) > 1): 
-            root1 = variables.driver.find_element(By.CSS_SELECTOR, 'game-app')
-            shadow_root1 = root1.shadow_root
-            root2 = shadow_root1.find_element(By.CSS_SELECTOR, f"game-row[letters={word}]")
-            shadow_root2 = root2.shadow_root
-            root3 = shadow_root2.find_element(By.CSS_SELECTOR, f" div:nth-child(2) > game-tile:nth-child({(indexes(word, letter)[i]) + 1})")
-            shadow_root3 = root3.shadow_root
-            tile = shadow_root3.find_element(By.CSS_SELECTOR, ".tile")
-            tileRowStatesWithIndex.append([[letter, tile.get_attribute("data-state")], indexes(word, letter)[i]])
+        if(word.count(letter) > 1):
+            tile = variables.driver.find_element_by_xpath(
+                f'//*[@id="wordle-app-game"]/div[1]/div/div[{row}]/div[{(indexes(word, letter)[i])+1}]/div')
+            tileRowStatesWithIndex.append(
+                [[letter, tile.get_attribute("data-state")], indexes(word, letter)[i]])
             i = i + 1
 
         else:
-            root1 = variables.driver.find_element(By.CSS_SELECTOR, 'game-app')
-            shadow_root1 = root1.shadow_root
-            root2 = shadow_root1.find_element(By.CSS_SELECTOR, f"game-row[letters={word}]")
-            shadow_root2 = root2.shadow_root
-            root3 = shadow_root2.find_element(By.CSS_SELECTOR, f"game-tile[letter={letter}]")
-            shadow_root3 = root3.shadow_root
-            tile = shadow_root3.find_element(By.CSS_SELECTOR, ".tile")
-            tileRowStatesWithIndex.append([[letter, tile.get_attribute("data-state")], word.find(letter)])
+            tile = variables.driver.find_element_by_xpath(
+                f'//*[@id="wordle-app-game"]/div[1]/div/div[{row}]/div[{(indexes(word, letter)[0])+1}]/div')
+            tileRowStatesWithIndex.append(
+                [[letter, tile.get_attribute("data-state")], word.find(letter)])
 
     return tileRowStatesWithIndex
 
-def getAll5LetterWords(): 
+
+def getAll5LetterWords():
     my_file = open("wordleWords.txt", "r")
     data = my_file.read()
     data_into_list = data.split(",")
     my_file.close()
 
     return data_into_list
+
 
 def logic(rowStatesWithIndex):
 
@@ -112,13 +101,15 @@ def logic(rowStatesWithIndex):
                 for element in list(variables.absentLetters):
                     if(element == duplicatedLetter):
                         variables.absentLetters.remove(element)
-                 
+
         elif(tileStateWithLetter[0][1] == "present"):
-            variables.letterAndIndexForPresent.append([tileStateWithLetter[0][0], tileStateWithLetter[1]])
-            
+            variables.letterAndIndexForPresent.append(
+                [tileStateWithLetter[0][0], tileStateWithLetter[1]])
+
         else:
-            variables.letterAndIndexForCorrect.append([tileStateWithLetter[0][0], tileStateWithLetter[1]]) 
-    
+            variables.letterAndIndexForCorrect.append(
+                [tileStateWithLetter[0][0], tileStateWithLetter[1]])
+
     for word in list(variables.wordsList):
 
         for letter in variables.absentLetters:
@@ -133,15 +124,15 @@ def logic(rowStatesWithIndex):
                 if(word not in variables.wordsList):
                     continue
                 else:
-                    if(word.find(element[0]) == element[1]): 
+                    if(word.find(element[0]) == element[1]):
                         variables.wordsList.remove(word)
             else:
                 if(word not in variables.wordsList):
                     continue
                 else:
                     variables.wordsList.remove(word)
-        
-        for element in variables.letterAndIndexForCorrect: 
+
+        for element in variables.letterAndIndexForCorrect:
             if(element[0] in word):
                 if(word not in variables.wordsList):
                     continue
@@ -152,16 +143,20 @@ def logic(rowStatesWithIndex):
                     continue
                 else:
                     variables.wordsList.remove(word)
-            
+
+
 def wordleBot():
-    functions.initalSteps() 
-    logic(tileRowStatesWithIndex("roate"))
+    row = 1
+    functions.initalSteps()
+    logic(tileRowStatesWithIndex("roate", row))
     nextWord = random.choice(variables.wordsList)
     typeInWord(nextWord)
+    row = row + 1
 
-    while(not(tileRowStates(nextWord) == ["correct", "correct", "correct", "correct", "correct"])):
-        logic(tileRowStatesWithIndex(nextWord))
+    while(not(tileRowStates(nextWord, row) == ["correct", "correct", "correct", "correct", "correct"])):
+        logic(tileRowStatesWithIndex(nextWord, row))
         nextWord = random.choice(variables.wordsList)
         typeInWord(nextWord)
+        row = row + 1
 
     print("Done")
